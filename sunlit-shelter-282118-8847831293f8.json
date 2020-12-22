@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "sunlit-shelter-282118",
+  "private_key_id": "8847831293f8fd48c26149c398a515139b99263b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDVVeilQdJ3hJzA\neiPtwOE4OuxDG2fsSHLI93C6c/suniFXmh9s3d1FTSqTeeieyU+3CwXckuoTzEAx\ntJHofL/xdMdBohEG9YGTtZwRZvuhktkPPv/kNm3lzkjK+kmcWa9il7eE2JSB02xr\no594dgVj8izfO/Cy74pbK0ImS2bqGL/ZYDx4ms779ry7yALpyJG98M4GuQqtALGs\nYlIBVAVnKTC3497sFGOb6DkIYYsnQmEA+tCIvX7edwZwbBSdz6pprUQDVsCztfoJ\nkk/LoMODU+WwpL5O+mnBlQhVwcxVd9qbsUub0jy5gxMpWG+54j8as6ajOhmYGGSg\nzUAFnGczAgMBAAECggEAFzB/70Vrjyyol1mPgelnRzlMc5z328d3nAsdmKmWd6zz\nsIs4eEPY/g6oc/XFSKFXBhgaJS2zvmmDiYOjH/OThQ0YbbTOsgQfd4K/D2XeMLl+\n2Q6UOpEvZVKvjJ95P0LBHZqioGZPJO+U8lG2ZMiQxxpM21/aHFvicmI442MV3ENC\ng0V5iayjd2u6ip21OfNM97MpG5zOrRYiwAblBnwTQqjSOK7UR2MdlodyYtWthX8X\nZ1c25fR1oP3by9G3zBLWz9z7Jj5d5PpvumVqWpEEWoRPMfnUusmYWNu5rJFXjvSR\nrG4GpP4zAB9FMXZH/K3PTkd+1NQ8pCkqoH+OP68+iQKBgQD7KU6nQK5Qy/7GlM24\ndCkPVh4aONI/Bz/0ziH3QdB9NKbboFbYZoKgyk/pZa13wXrmb0G2m86xcbOZig3h\n8Z+XAXevMEEg380SKy60V065A77xF+/IT4uxK3zkz21ujXiDk1yZr6p+maxiv6rK\nzR1jMWWw/2k2/W1dWpIrcw8RyQKBgQDZcgzSgF6t978ESuR4uJOKLfxlCpgRZYGw\nPi67bOyHAMPiJsehyswdkbS9QNki+z5mTc5qHzfNhb7BYNq0etlikPAZZTFHI1Vy\nt+QLYf3uLH+mYljhWTTJr/itBzZfmnA3I7+km40TW7pM8L5bLiSxshco2sb0vMcp\nZr78SITPGwKBgFwPmgroRHzNKUf0xyszONGsSUBnT3lW2PSMkhqlfxxFrluWe/66\nJGt3fK8aW+knfDr20Ol0VuDnwmMnHUuSW2LoYMxQLa81GV/tgCMOVYavfs+0bGnJ\n7nQ0coUUGxKIvIHOBAU5RI8/GNbhVmMbqAfx1Up5dEF5xxqO1kEi3YUxAoGBAKFV\nRoA0cIshIx/bNVMAl69RWU/aoWNe7e9G48N6GLA9+Bhmb33yiqlxvykf4TtcMDsV\nhY4lZXDex96QrxRzhbDlGs+szfgbFj4MhG2RoidB6uAXXhys5Ea0goxWqpgabSHs\nKzfFldGEIGEPyhy6yszw9tAAKtfQ7PAh5Jgocil7AoGBAM4CspMTkTtCnU99USd2\ncrGG33VNB5sLOMRUjvvcM3fj+Rqsb+9YAm6k4M5p9aMWjIMjgjJ8BI6zQeO3OCJF\nxC9Wzf7UDPK5p5t4EKkxAgptmyGZ0p8pX8VMA7+ei1hAcPVKHpRUT4LccGFTzzx/\nX5zm2IrhQU0lt+bQ3rTeIxad\n-----END PRIVATE KEY-----\n",
+  "client_email": "google-sheets@sunlit-shelter-282118.iam.gserviceaccount.com",
+  "client_id": "107572332470058671066",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-sheets%40sunlit-shelter-282118.iam.gserviceaccount.com"
+}
