@@ -1,3 +1,4 @@
+import hashlib
 import sys
 import os
 import pandas as pd
@@ -9,11 +10,11 @@ def create_bkt_params(name):
     return "\"" + name + "\": {probMastery: 0.1, probTransit: 0.1, probSlip: 0.1, probGuess: 0.1},"
 
 
-def create_lesson_plan(sheet, skills):
+def create_lesson_plan(sheet, skills, course_name):
     lesson_number = sheet.split()[0]
     lesson_topics = " ".join(sheet.split()[1:])
-    
-    lesson_id = ("lesson" + lesson_number)
+    course_lesson_hash = hashlib.sha1((str(course_name) + "_" + lesson_number).encode('utf-8')).hexdigest()
+    lesson_id = course_lesson_hash[:6] + "-" + course_lesson_hash[6:10] + "-" + course_lesson_hash[10:16]
     lesson_name = "Lesson " + lesson_number
     learning_objectives = "{"
     if skills:
@@ -136,7 +137,7 @@ def create_total(default_path, is_local, sheet_keys=None, sheet_names=None):
                 sheet_names = [tab for tab in myexcel.sheet_names if tab[:2] != '!!']
             for sheet in sheet_names:
                 skills = process_sheet(sheet_key, sheet, default_path, is_local)
-                lesson_plan.append(create_lesson_plan(sheet, skills))
+                lesson_plan.append(create_lesson_plan(sheet, skills, course_name))
                 for skill in skills:
                     bkt_params.append(create_bkt_params(skill))
             course_plan.append(create_course_plan(course_name, lesson_plan))
@@ -159,7 +160,7 @@ def create_total(default_path, is_local, sheet_keys=None, sheet_names=None):
                 else:
                     skills = process_sheet(book_url, sheet, default_path, 'online','TRUE',
                                             validator_path=validator_path, course_name=course_name)
-                lesson_plan.append(create_lesson_plan(sheet, skills))
+                lesson_plan.append(create_lesson_plan(sheet, skills, course_name))
                 if skills:
                     for skill in skills:
                         bkt_params.append(create_bkt_params(skill))
