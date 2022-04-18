@@ -16,9 +16,10 @@ def test_all_content(url_prefix):
     driver = start_driver()
 
     all_files = get_all_content_filename()
-    alert_df = pd.DataFrame(columns=["Book Name", "Error Log", "Issue Type", "Status", "Comment"])
+    alert_df = pd.DataFrame(columns=["Book Name", "Error Log", "Commit Hash", "Issue Type", "Status", "Comment"])
 
     count = 0
+    commit_hash = ""
 
     init_time = time.time()
     start_time = time.time()
@@ -32,7 +33,7 @@ def test_all_content(url_prefix):
             end_time = time.time()
             time_elapse = round(end_time - start_time, 2)
             
-            if count != 0 and time_elapse < 25:
+            if count != 0 and time_elapse < 5:
                 print("Fetching blank pages. Logging result and breaking program...")
                 print("Last 11 problems:", all_files[max(0, count - 11): min(count + 1, len(all_files))])
 
@@ -62,10 +63,11 @@ def test_all_content(url_prefix):
         
         try:
             alert_df, driver = test_page(url_prefix, problem, driver, alert_df)
+            commit_hash = driver.execute_script("return document['oats-meta-site-hash']")
         except Exception as e:
             err = "Exception on problem {0}: {1}".format(problem_name, e)
             print(err)
-            alert_df = alert_df.append({"Book Name": problem.book_name, "Error Log": err, "Issue Type": "", "Status": "open", "Comment": ""}, ignore_index=True)
+            alert_df = alert_df.append({"Book Name": problem.book_name, "Error Log": err, "Commit Hash": commit_hash, "Issue Type": "", "Status": "open", "Comment": ""}, ignore_index=True)
 
     try:
         driver.close()
@@ -84,6 +86,6 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         url_prefix = sys.argv[1]
     else:
-        url_prefix = "https://cahlr.github.io/OATutor-Staging/#/debug/"
+        url_prefix = "https://cahlr.github.io/OATutor-Content-Staging/#/debug/"
     
     test_all_content(url_prefix)
