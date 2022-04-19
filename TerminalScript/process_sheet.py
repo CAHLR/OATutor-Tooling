@@ -422,9 +422,9 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     print("[{}] JS validator start".format(sheet_name))
 
     lesson_id = df.at[0, "Lesson ID"]
-    if not lesson_id:
+    if not lesson_id or len(str(lesson_id)) <= 3:
         lesson_id = generate_id()  # DF sometimes infer float for this col
-        debug_df.at[0, "Lesson ID"] = lesson_id
+    debug_df.at[0, "Lesson ID"] = lesson_id
 
     questions = [x for _, x in df.groupby(df['Problem Name'])]
 
