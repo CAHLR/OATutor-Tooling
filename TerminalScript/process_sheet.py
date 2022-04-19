@@ -768,7 +768,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
             print('sheetname:', sheet_name, e)
             time.sleep(40)
     try:
-        set_with_dataframe(worksheet, debug_df, col=20)
+        set_with_dataframe(worksheet, debug_df, col=len(df.columns) + len(error_df.columns))
     except Exception as e:
         print('Fail to write to google sheet. Waiting...')
         print('sheetname:', sheet_name, e)
