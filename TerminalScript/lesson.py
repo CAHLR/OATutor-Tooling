@@ -1,3 +1,4 @@
+import hashlib
 import sys
 import os
 import pandas as pd
@@ -20,11 +21,12 @@ def create_bkt_params(name):
     return bkt_params
 
 
-def create_lesson_plan(sheet, skills):
+def create_lesson_plan(sheet, skills, course_name):
     lesson_number = sheet.split()[0]
     lesson_topics = " ".join(sheet.split()[1:])
 
-    lesson_id = ("lesson" + lesson_number)
+    course_lesson_hash = hashlib.sha1((str(course_name) + "_" + lesson_number).encode('utf-8')).hexdigest()
+    lesson_id = course_lesson_hash[:6] + "-" + course_lesson_hash[6:10] + "-" + course_lesson_hash[10:16]
     lesson_name = ("Lesson " + lesson_number)
 
     lesson_plan = {
@@ -93,10 +95,12 @@ def create_total(default_path, is_local, sheet_keys=None, sheet_names=None):
                 sheet_names = [tab for tab in myexcel.sheet_names if tab[:2] != '!!']
             for sheet in sheet_names:
                 skills = process_sheet(sheet_key, sheet, default_path, is_local)
+
                 if not skills:
                     skills = []
                 skills.sort()
-                lesson_plan.append(create_lesson_plan(sheet, skills))
+                lesson_plan.append(create_lesson_plan(sheet, skills, course_name))
+
                 for skill in skills:
                     bkt_params.update(create_bkt_params(skill))
             course_plan.append(create_course_plan(course_name, lesson_plan))
@@ -121,9 +125,10 @@ def create_total(default_path, is_local, sheet_keys=None, sheet_names=None):
                 if not skills:
                     skills = []
                 skills.sort()
-                lesson_plan.append(create_lesson_plan(sheet, skills))
+                lesson_plan.append(create_lesson_plan(sheet, skills, course_name))
                 for skill in skills:
                     bkt_params.update(create_bkt_params(skill))
+
                 end = time.time()
                 if end - start < 4.5:
                     time.sleep(4.5 - (end - start))
