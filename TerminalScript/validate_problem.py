@@ -34,7 +34,7 @@ def validate_step(row, variabilization, latex, verbosity):
     choices = type(row["mcChoices"]) == str and row["mcChoices"]
     if variabilization:
         create_step(row['Problem Name'], row['Title'], row["Body Text"], row["Answer"], row["answerType"],
-                    1, choices, "", variabilization=row["Variabilization"], latex=latex,
+                    1, choices, "", var_str=row["Variabilization"], latex=latex,
                     verbosity=verbosity)
     else:
         create_step(row['Problem Name'], row['Title'], row["Body Text"], row["Answer"], row["answerType"],
