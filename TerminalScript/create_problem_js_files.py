@@ -112,7 +112,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, tutor
         if variabilization:
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
                                                 row["Body Text"], row["Dependency"], hint_images,
-                                                hint_dic=hint_dic, variabilization=row["Variabilization"],
+                                                hint_dic=hint_dic, var_str=row["Variabilization"],
                                                 latex=latex, verbosity=verbosity)
         else:
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
@@ -124,7 +124,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, tutor
                                                     row["Body Text"], row["answerType"], row["Answer"],
                                                     row["mcChoices"], row["Dependency"], hint_images,
                                                     hint_dic=hint_dic,
-                                                    variabilization=row["Variabilization"], latex=latex,
+                                                    var_str=row["Variabilization"], latex=latex,
                                                     verbosity=verbosity)
         else:
             subhint, subhint_id = create_scaffold(current_step_name, hint_id, row["Title"],
@@ -140,7 +140,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, tutor
                                             previous_tutor["Title"], previous_tutor["Body Text"],
                                             previous_tutor["Dependency"], previous_images,
                                             subhints=current_subhints, hint_dic=hint_dic,
-                                            variabilization=previous_tutor["Variabilization"],
+                                            var_str=previous_tutor["Variabilization"],
                                             latex=latex, verbosity=verbosity)
         else:
             previous, hint_id = create_hint(current_step_name, previous_tutor["HintID"],
@@ -156,7 +156,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, tutor
                                                 previous_tutor["mcChoices"],
                                                 previous_tutor["Dependency"], previous_images,
                                                 subhints=current_subhints, hint_dic=hint_dic,
-                                                variabilization=previous_tutor["Variabilization"],
+                                                var_str=previous_tutor["Variabilization"],
                                                 latex=latex, verbosity=verbosity)
         else:
             previous, hint_id = create_scaffold(current_step_name, previous_tutor["HintID"],
@@ -182,7 +182,7 @@ def write_hint_json(row, current_step_name, tutoring, images, figure_path, path,
     if variabilization:
         hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
                                     row["Body Text"], row["Dependency"], hint_images,
-                                    hint_dic=hint_dic, variabilization=row["Variabilization"],
+                                    hint_dic=hint_dic, var_str=row["Variabilization"],
                                     latex=latex, verbosity=verbosity)
     else:
         hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
@@ -208,7 +208,7 @@ def write_scaffold_json(row, current_step_name, tutoring, images, figure_path, p
         scaff, full_id = create_scaffold(current_step_name, row["HintID"], row["Title"],
                                             row["Body Text"], row["answerType"], row["Answer"],
                                             row["mcChoices"], row["Dependency"], scaff_images,
-                                            hint_dic=hint_dic, variabilization=row["Variabilization"],
+                                            hint_dic=hint_dic, var_str=row["Variabilization"],
                                             latex=latex, verbosity=verbosity)
     else:
         scaff, full_id = create_scaffold(current_step_name, row["HintID"], row["Title"],
