@@ -350,12 +350,16 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     skills_unformatted = ["_".join(skill.lower().split()) for skill in skills_unformatted]
 
     # write error checks to content google sheets
-    try:
-        set_with_dataframe(worksheet, error_df, col=len(df.columns))
-    except Exception as e:
-        print('Fail to write to google sheet. Waiting...')
-        print('sheetname:', sheet_name, e)
-        time.sleep(40)
+    if validator_path:
+        try:
+            for col in ['Check 1', 'Check 2']:
+                if error_df[col].isnull().values.all():
+                    error_df.at[0, col] = "No errors found"
+            set_with_dataframe(worksheet, error_df, col=len(df.columns))
+        except Exception as e:
+            print('Fail to write to google sheet. Waiting...')
+            print('sheetname:', sheet_name, e)
+            time.sleep(40)
 
     # writing debug links to the content google sheets
     try:
@@ -382,7 +386,7 @@ def generate_id():
     raw_id = shortuuid.encode(uuid.uuid4())
     return raw_id[:8] + "-" + raw_id[8:12] + "-" + raw_id[12:]
 
-# todo: what is this used for?
+# Enter check 2 column
 def validator_check(response, df, error_df, sheet_name):
     post_script_errors = response.stdout.decode("utf-8").split('\n')
     for error in post_script_errors:
