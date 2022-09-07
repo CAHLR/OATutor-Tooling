@@ -159,7 +159,7 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
         "variabilization": variabilization
     }
 
-    if type(mc_answers) == str:
+    if type(mc_answers) is list:
         scaff_dict.update({
             "choices": mc_answers
         })
