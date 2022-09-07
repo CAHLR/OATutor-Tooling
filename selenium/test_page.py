@@ -18,8 +18,8 @@ from fetch_problem_ans import fetch_problem_ans_info
 from alert_error import alert
 from wait_class import element_has_attribute
 
-CORRECT = "https://cahlr.github.io/OATutor-Content-Staging/static/images/icons/green_check.svg"
-WRONG = "https://cahlr.github.io/OATutor-Content-Staging/static/images/icons/error.svg"
+CORRECT = "https://cahlr.github.io/OATutor-Staging/static/images/icons/green_check.svg"
+WRONG = "https://cahlr.github.io/OATutor-Staging/static/images/icons/error.svg"
 SCROLL_LENGTH = 500
 page_breaks = False
 last_katex_time = None
@@ -34,7 +34,7 @@ def start_driver():
     options.add_argument("--disable-extensions")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager(version="103.0.5060.53").install()), options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager(version="105.0.5195.52").install()), options=options)
     driver.maximize_window()
     return driver
 
@@ -192,7 +192,6 @@ def enter_text_answer(problem_name, driver, problem_index, correct_answer, answe
     if answer_type == "arithmetic" and "begin{bmatrix}" in correct_answer: 
         # try:
             # Enter matrix dimension
-        print(correct_answer)
         row_count = correct_answer.count('\\\\') + 1
         col_count = re.search(r'begin\{bmatrix\}(.*?)\\\\', correct_answer).group(1).count('&') + 1
         row_selector = "[data-selenium-target=grid-answer-row-input-{}] > div > input".format(problem_index)
@@ -465,7 +464,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         url_prefix = sys.argv[2]
     else:
-        url_prefix = "https://cahlr.github.io/OATutor-Content-Staging/#/debug/"
+        url_prefix = "https://cahlr.github.io/OATutor-Staging/#/debug/"
     
     problem = fetch_problem_ans_info(problem_name)
     driver = start_driver()
