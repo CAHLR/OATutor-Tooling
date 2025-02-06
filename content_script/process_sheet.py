@@ -7,6 +7,7 @@ from datetime import datetime
 import gspread
 import pandas as pd
 import numpy as np
+import warnings
 import shortuuid
 import pytz
 from gspread_dataframe import set_with_dataframe
@@ -17,6 +18,7 @@ from openpyxl import load_workbook
 from gspread.exceptions import APIError
 
 pd.options.display.html.use_mathjax = False
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from create_dir import *
 from create_content import *
