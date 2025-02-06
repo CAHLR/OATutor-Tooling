@@ -14,7 +14,7 @@ numpy
 Naked
 oauth2client
 oauthlib
-pandas==2.2.3
+pandas==1.2.5
 Pillow
 pyasn1
 pyasn1-modules
@@ -32,4 +32,4 @@ urllib3
 wincertstore
 wrapt
 python-dotenv
-openpyxl==3.1.0
+openpyxl
