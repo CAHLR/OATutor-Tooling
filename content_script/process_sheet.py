@@ -235,11 +235,6 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
 
     elif is_local == "local":
         df = pd.read_excel(spreadsheet_key, sheet_name=sheet_name, engine='openpyxl')
-
-        book = load_workbook(spreadsheet_key)
-        writer = pd.ExcelWriter(spreadsheet_key, engine='openpyxl') 
-        writer.book = book
-        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
         
         if "Problem ID" not in df.columns:
             df["Problem ID"] = ""
@@ -269,6 +264,9 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
                      "mcChoices", "Images (space delimited)", "Parent", "OER src", "openstax KC", "KC", "Taxonomy", "License", 
                      "Problem ID", "Lesson ID", "Image Checksum"]
             df = df[keep]
+
+            with pd.ExcelWriter(spreadsheet_key, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                df.to_excel(writer, sheet_name=sheet_name, index=False)  # Save changes
 
         except KeyError as e:
             print("[{}] error found: {}".format(sheet_name, e))
