@@ -14,7 +14,7 @@ numpy
 Naked
 oauth2client
 oauthlib
-pandas
+pandas==1.3.0
 Pillow
 pyasn1
 pyasn1-modules
