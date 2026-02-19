@@ -101,7 +101,7 @@ def get_all_url(bank_url, is_local):
     # url_df = url_df[["Book", "URL", "OER", "License", "Editor Sheet", "Editor OER", "Editor License"]]
 
     if "Language" not in url_df.columns:
-    url_df["Language"] = "en"
+        url_df["Language"] = "en"
 
     url_df = url_df[["Book", "Language", "URL", "OER", "License", "Editor Sheet", "Editor OER", "Editor License"]]
 
