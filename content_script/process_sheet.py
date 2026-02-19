@@ -100,11 +100,14 @@ def get_all_url(bank_url, is_local):
     
     # url_df = url_df[["Book", "URL", "OER", "License", "Editor Sheet", "Editor OER", "Editor License"]]
 
-    # add language column to define locale at the textbook level
+    if "Language" not in url_df.columns:
+    url_df["Language"] = "en"
+
     url_df = url_df[["Book", "Language", "URL", "OER", "License", "Editor Sheet", "Editor OER", "Editor License"]]
 
     url_df = url_df.astype(str)
-    # url_df['Language'] = url_df['Language'].replace('', 'en')
+    url_df['Language'] = url_df['Language'].replace('', 'en').replace('nan', 'en')
+
     
     for col in url_df.columns:
         if col != "Language":
