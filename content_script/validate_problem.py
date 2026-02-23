@@ -45,7 +45,7 @@ def validate_step(row, variabilization, latex, verbosity, old_path):
     if type(row["Images (space delimited)"]) == str:
         validate_image(row["Images (space delimited)"], row["Image Checksum"], old_path)
     choices = type(row["mcChoices"]) == str and row["mcChoices"]
-    if variabilization:
+    if variabilization and type(row["Variabilization"]) != float:
         create_step(row['Problem Name'], row['Title'], row["Body Text"], row["Answer"], row["answerType"],
                     1, choices, "", var_str=row["Variabilization"], latex=latex,
                     verbosity=verbosity)
@@ -69,7 +69,7 @@ def validate_hint_with_parent(row, scaff_lst, row_type, hint_dic, previous_tutor
     except TypeError:
         raise Exception("Hint ID is missing")
     if row_type == 'hint':
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
                                                 row["Body Text"], "", "", row["Dependency"], hint_images,
                                                 hint_dic=hint_dic, var_str=row["Variabilization"],
@@ -80,7 +80,7 @@ def validate_hint_with_parent(row, scaff_lst, row_type, hint_dic, previous_tutor
                                                 hint_dic=hint_dic, latex=latex, verbosity=verbosity)
     else:
         scaff_lst.append(hint_id)
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             subhint, subhint_id = create_scaffold(current_step_name, hint_id, row["Title"],
                                                     row["Body Text"], row["answerType"], row["Answer"],
                                                     row["mcChoices"], "", "", row["Dependency"], hint_images,
@@ -94,7 +94,7 @@ def validate_hint_with_parent(row, scaff_lst, row_type, hint_dic, previous_tutor
                                                     hint_dic=hint_dic, latex=latex, verbosity=verbosity)
     hint_dic[row["HintID"]] = subhint_id
     if previous_tutor['Row Type'] == 'hint':
-        if variabilization:
+        if variabilization and type(previous_tutor["Variabilization"]) != float:
             previous, hint_id = create_hint(current_step_name, previous_tutor["HintID"],
                                             previous_tutor["Title"], previous_tutor["Body Text"], "", "", 
                                             previous_tutor["Dependency"], "",
@@ -108,7 +108,7 @@ def validate_hint_with_parent(row, scaff_lst, row_type, hint_dic, previous_tutor
                                             subhints=[], hint_dic=hint_dic, latex=latex,
                                             verbosity=verbosity)
     else:
-        if variabilization:
+        if variabilization and type(previous_tutor["Variabilization"]) != float:
             previous, hint_id = create_scaffold(current_step_name, previous_tutor["HintID"],
                                                 previous_tutor["Title"], previous_tutor["Body Text"],
                                                 previous_tutor["answerType"], previous_tutor["Answer"],
@@ -135,7 +135,7 @@ def validate_hint_without_parent(row, scaff_lst, row_type, hint_dic, variabiliza
         hint_images = ""
         if type(row["Images (space delimited)"]) == str:
             validate_image(row["Images (space delimited)"], row["Image Checksum"], old_path)
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
                                         row["Body Text"], "", "", row["Dependency"], hint_images,
                                         hint_dic=hint_dic, var_str=row["Variabilization"],
@@ -150,7 +150,7 @@ def validate_hint_without_parent(row, scaff_lst, row_type, hint_dic, variabiliza
         scaff_images = ""
         if type(row["Images (space delimited)"]) == str:
             validate_image(row["Images (space delimited)"], row["Image Checksum"], old_path)
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             scaff, full_id = create_scaffold(current_step_name, row["HintID"], row["Title"],
                                                 row["Body Text"], row["answerType"], row["Answer"],
                                                 row["mcChoices"], "", "", row["Dependency"], scaff_images,
