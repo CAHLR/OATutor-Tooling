@@ -96,7 +96,7 @@ def write_step_json(default_path, problem_name, row, step_count, tutoring, skill
                                                         figure_path, int(images), old_path)
 
     with open(step_reg_json_path, "w", encoding="utf-8") as step_file:
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             step_file.write(create_step(problem_name, row['Title'], row["Body Text"], row["Answer"], row["answerType"],
                                         step_count, row.get("mcChoices", ""), step_images, 
                                         var_str=row["Variabilization"], latex=latex, verbosity=verbosity))
@@ -121,7 +121,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
 
     hint_id = f"{row['Parent']}-{row['HintID']}"
     if row_type == 'hint':
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
                                               row["Body Text"], oer, license, row["Dependency"], hint_images,
                                               hint_dic=hint_dic, var_str=row["Variabilization"],
@@ -131,7 +131,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
                                               row["Body Text"], oer, license, row["Dependency"], hint_images,
                                               hint_dic=hint_dic, latex=latex, verbosity=verbosity)
     else:
-        if variabilization:
+        if variabilization and type(row["Variabilization"]) != float:
             subhint, subhint_id = create_scaffold(current_step_name, hint_id, row["Title"],
                                                   row["Body Text"], row["answerType"], row["Answer"],
                                                   row["mcChoices"], oer, license, row["Dependency"], hint_images,
@@ -148,7 +148,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
     tutoring.pop()
 
     if previous_tutor['Row Type'] == 'hint':
-        if variabilization:
+        if variabilization and type(previous_tutor["Variabilization"]) != float:
             previous, hint_id = create_hint(current_step_name, previous_tutor["HintID"],
                                             previous_tutor["Title"], previous_tutor["Body Text"], oer, license, 
                                             previous_tutor["Dependency"], previous_images,
@@ -162,7 +162,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
                                             subhints=current_subhints, hint_dic=hint_dic, latex=latex,
                                             verbosity=verbosity)
     else:
-        if variabilization:
+        if variabilization and type(previous_tutor["Variabilization"]) != float:
             previous, hint_id = create_scaffold(current_step_name, previous_tutor["HintID"],
                                                 previous_tutor["Title"], previous_tutor["Body Text"],
                                                 previous_tutor["answerType"], previous_tutor["Answer"],
@@ -193,7 +193,7 @@ def write_hint_json(row, current_step_name, oer, license, tutoring, images, figu
         hint_images, images, image_df_str = save_images(row["Images (space delimited)"], row.get("Image Checksum", ""), 
                                                         figure_path, int(images), old_path)
 
-    if variabilization:
+    if variabilization and type(row["Variabilization"]) != float:
         hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
                                     row["Body Text"], oer, license, row["Dependency"], hint_images,
                                     hint_dic=hint_dic, var_str=row["Variabilization"],
@@ -220,7 +220,7 @@ def write_scaffold_json(row, current_step_name, oer, license, tutoring, images, 
         scaff_images, images, image_df_str = save_images(row["Images (space delimited)"], row.get("Image Checksum", ""), 
                                                          figure_path, int(images), old_path)
 
-    if variabilization:
+    if variabilization and type(row["Variabilization"]) != float:
         scaff, full_id = create_scaffold(current_step_name, row["HintID"], row["Title"],
                                          row["Body Text"], row["answerType"], row["Answer"],
                                          row["mcChoices"], oer, license, row["Dependency"], scaff_images,
@@ -250,7 +250,7 @@ def write_problem_json(problem_row, problem_name, problem_json_path, course_name
                                                            problem_row.get("Image Checksum", ""), 
                                                            figure_path, int(images), old_path)
 
-    if variabilization:
+    if variabilization and type(problem_row["Variabilization"]) != float:
         prob_js = create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                                       problem_row["OER src"], problem_row["License"], problem_images,
                                       var_str=problem_row["Variabilization"], latex=latex,

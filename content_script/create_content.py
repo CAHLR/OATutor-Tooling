@@ -220,7 +220,7 @@ def create_step(name, title, body, answer, answer_type, number, choices="", imag
 
     for img in image:
         body += "##" + img + "## "
-    if choices:
+    if choices and type(choices) != float:
         choice_list = [choice for choice in choices.split('|') if choice]
         if answer not in choice_list:
             choice_list.append(answer)

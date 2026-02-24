@@ -184,7 +184,7 @@ def validate_question(question, variabilization, latex, verbosity, old_path):
     problem_images = ""
     if type(problem_row["Images (space delimited)"]) == str:
         validate_image(problem_row["Images (space delimited)"], problem_row["Image Checksum"], old_path)
-    if variabilization:
+    if variabilization and type(problem_row["Variabilization"]) != float:
         create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                             problem_row["OER src"], problem_images,
                             var_str=problem_row["Variabilization"], latex=latex, verbosity=verbosity)
@@ -303,7 +303,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
                 df.replace(0.0, '', inplace=True)
                 df.replace('nan', '', inplace=True)
                 excel_df = pd.concat([df.drop(columns=df.columns[val_col:]), empty_col, error_df, df[add]], axis=1)
-                excel_df.to_excel(writer, sheet_name, index=False, na_rep='')
+                excel_df.to_excel(writer, sheet_name=sheet_name, index=False, na_rep='')
                 
                 with pd.ExcelWriter(spreadsheet_key, engine='openpyxl', mode='w') as writer:
                     excel_df.to_excel(writer, sheet_name=sheet_name, index=False, na_rep='')
@@ -465,7 +465,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     meta_dict = {}
     if meta:
         for m in df["Meta"]:
-            if m:
+            if m and type(m) != float:
                 try:
                     key, value = m.split(": ")
                     if value.lower() == "true":
@@ -506,7 +506,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         df.replace(0.0, '', inplace=True)
         df.replace('nan', '', inplace=True)
         excel_df = pd.concat([df.drop(columns=drop), empty_col, error_debug_df, df[add]], axis=1)
-        excel_df.to_excel(writer, sheet_name, index=False, na_rep='')
+        excel_df.to_excel(writer, sheet_name=sheet_name, index=False, na_rep='')
 
         with pd.ExcelWriter(spreadsheet_key, engine='openpyxl', mode='w') as writer:
             excel_df.to_excel(writer, sheet_name=sheet_name, index=False, na_rep='')
