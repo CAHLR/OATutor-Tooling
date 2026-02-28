@@ -1,3 +1,4 @@
+import re  # used for re.split(...) on "openstax KC"
 import sys
 import os
 import shutil
@@ -51,10 +52,14 @@ def get_sheet_with_retries(book, sheet_name, retries=5, delay=5):
     raise Exception(f"Failed to fetch worksheet '{sheet_name}' after {retries} retries.")
     
 def get_sheet_online(spreadsheet_key, retries=5):
-    scope = ['https://spreadsheets.google.com/feeds']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
+    scope = ['https://spreadsheets.google.com/feeds']  # keep original scope
+    import os
+    keyfile = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if not keyfile:
+        raise RuntimeError("Set GOOGLE_APPLICATION_CREDENTIALS to your service-account JSON path")
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(keyfile, scope)
+
     gc = gspread.authorize(credentials)
-    
     attempt = 0
     while attempt < retries:
         try:
@@ -64,9 +69,9 @@ def get_sheet_online(spreadsheet_key, retries=5):
             print(f"APIError encountered: {e}.")
             attempt += 1
             exponential_backoff(attempt)
-    
+            
     raise Exception("Max retries reached. Could not connect to Google Sheets.")
-    
+
 def get_sheet_values(worksheet, retries=5):
     attempt = 0
     while attempt < retries:
