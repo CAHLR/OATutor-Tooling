@@ -13,6 +13,14 @@ from datetime import datetime, timezone
 from process_sheet import process_sheet, get_all_url, get_sheet_online, get_sheet_values, get_sheet_with_retries, compute_sheet_hash, URL_SPREADSHEET_KEY
 
 
+def normalize_values(values):
+    """Pad rows to match header length, like get_all_values() does."""
+    if not values:
+        return values
+    max_cols = max(len(row) for row in values) if values else 0
+    return [row + [''] * (max_cols - len(row)) for row in values]
+
+
 def sort_lessons(name):
     section = re.search(('[a-zA-Z\s]+([0-9]+)'), name)
     if section:
@@ -193,6 +201,23 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
             except Exception as e:
                 print("Could not check lastUpdateTime for {}: {}".format(course_name, e))
 
+        # Batch-read all worksheets for changed books to avoid sequential API calls
+        batch_values = {}  # sheet_name -> normalized values
+        if is_local == 'online' and not full_update and not book_unchanged:
+            try:
+                ranges = ["'{}'".format(s) for s in sheet_names]
+                batch_result = book.values_batch_get(ranges)
+                value_ranges = batch_result.get('valueRanges', [])
+                for i, sheet in enumerate(sheet_names):
+                    if i < len(value_ranges):
+                        raw_values = value_ranges[i].get('values', [])
+                        batch_values[sheet] = normalize_values(raw_values)
+                    else:
+                        batch_values[sheet] = []
+            except Exception as e:
+                print("Batch read failed for '{}': {}, falling back to sequential".format(course_name, e))
+                batch_values = {}
+
         for sheet in sheet_names:
             # Determine whether this sheet needs processing
             if is_local == 'local' or full_update:
@@ -200,12 +225,15 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
             elif book_unchanged:
                 should_process = False
             else:
-                # Per-worksheet hash comparison for changed books
+                # Per-worksheet hash comparison using batch-fetched data
                 should_process = False
                 if sheet != 0.0:
                     try:
-                        ws = get_sheet_with_retries(book, sheet)
-                        values = get_sheet_values(ws)
+                        if sheet in batch_values:
+                            values = batch_values[sheet]
+                        else:
+                            ws = get_sheet_with_retries(book, sheet)
+                            values = get_sheet_values(ws)
                         new_hash = compute_sheet_hash(values)
                         stored = hash_df[(hash_df["Sheet Name"] == sheet) & (hash_df["Spreadsheet Key"] == sheet_url)]
                         if len(stored) == 0 or stored.iloc[0]["Content Hash"] != new_hash:
@@ -217,13 +245,25 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
 
             if should_process:
                 start = time.time()
+                # Prepare prefetched data if available from batch read
+                prefetched_table = None
+                prefetched_worksheet = None
+                if sheet in batch_values and is_local == 'online':
+                    prefetched_table = batch_values[sheet]
+                    try:
+                        prefetched_worksheet = get_sheet_with_retries(book, sheet)
+                    except Exception as e:
+                        print("Could not get worksheet object for {}: {}".format(sheet, e))
+
                 if sheet[:2] == '##':
                     skills, lesson_id, skills_dict, meta = process_sheet(sheet_url, sheet, default_path, is_local, 'FALSE',
-                                        course_name=course_name, mode=mode)
+                                        course_name=course_name, mode=mode,
+                                        prefetched_table=prefetched_table, prefetched_worksheet=prefetched_worksheet)
                     sheet = sheet[2:]
                 else:
                     skills, lesson_id, skills_dict, meta = process_sheet(sheet_url, sheet, default_path, is_local, 'TRUE',
-                                        course_name=course_name, mode=mode)
+                                        course_name=course_name, mode=mode,
+                                        prefetched_table=prefetched_table, prefetched_worksheet=prefetched_worksheet)
                 if not lesson_id:
                     continue
                 if not skills:

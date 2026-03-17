@@ -207,12 +207,17 @@ def validate_question(question, variabilization, latex, verbosity, old_path):
     return error_message[:-1]  # get rid of the last newline
 
 
-def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, verbosity=False, course_name="", mode="full"):
+def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, verbosity=False, course_name="", mode="full",
+                  prefetched_table=None, prefetched_worksheet=None):
     variabilization = meta = False
     if is_local == "online":
-        book = get_sheet_online(spreadsheet_key)
-        worksheet = get_sheet_with_retries(book, sheet_name)
-        table = get_sheet_values(worksheet)
+        if prefetched_table is not None:
+            table = prefetched_table
+            worksheet = prefetched_worksheet if prefetched_worksheet is not None else get_sheet_with_retries(get_sheet_online(spreadsheet_key), sheet_name)
+        else:
+            book = get_sheet_online(spreadsheet_key)
+            worksheet = get_sheet_with_retries(book, sheet_name)
+            table = get_sheet_values(worksheet)
         try:
             df = pd.DataFrame(table[1:], columns=table[0])
         except:
