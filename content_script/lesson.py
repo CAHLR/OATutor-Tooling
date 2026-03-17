@@ -9,7 +9,8 @@ from openpyxl import load_workbook
 import json
 import re
 
-from process_sheet import process_sheet, get_all_url, get_sheet_online, URL_SPREADSHEET_KEY
+from datetime import datetime, timezone
+from process_sheet import process_sheet, get_all_url, get_sheet_online, get_sheet_values, get_sheet_with_retries, compute_sheet_hash, URL_SPREADSHEET_KEY
 
 
 def sort_lessons(name):
@@ -142,6 +143,7 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
 
 
     url_df, hash_df = get_all_url(bank_url=bank_url, is_local=is_local)
+    hash_updates = []  # Track (sheet_name, spreadsheet_key, new_hash) for updating Content Hash tab
 
     sheets_queue = []
     for _, row in url_df.iterrows():
@@ -165,18 +167,55 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
                 sheet_names = [sheet.title for sheet in book.worksheets() if sheet.title[:2] != '!!']
             except Exception as e:
                 print("Gspread Error in {}, {}:".format(course_name, sheet_url), e)
-        
+
         else:
             book = load_workbook(sheet_url)
             sheet_names = [sheet.title for sheet in book.worksheets if sheet.title[:2] != '!!']
-        
+
         if full_update:
             mode = "full"
         else:
             mode = "final"
+
+        # Book-level lastUpdateTime check to skip entirely unchanged books
+        book_unchanged = False
+        if is_local == 'online' and not full_update:
+            try:
+                last_update_time = book.get_lastUpdateTime()
+                book_hash_rows = hash_df[hash_df["Spreadsheet Key"] == sheet_url]
+                stored_times = book_hash_rows["Last Checked"]
+                stored_times = stored_times[stored_times != 0.0]
+                if len(stored_times) > 0:
+                    max_stored = str(stored_times.max())
+                    if last_update_time <= max_stored:
+                        book_unchanged = True
+                        print("Book '{}' unchanged (lastUpdateTime: {}), skipping all worksheets".format(course_name, last_update_time))
+            except Exception as e:
+                print("Could not check lastUpdateTime for {}: {}".format(course_name, e))
+
         for sheet in sheet_names:
-            # process only the sheets that have changed since last final.py run
-            if is_local == 'local' or full_update or sheet != 0.0 and sheet + sheet_url in list(hash_df["Changed Sheets"].unique()):
+            # Determine whether this sheet needs processing
+            if is_local == 'local' or full_update:
+                should_process = True
+            elif book_unchanged:
+                should_process = False
+            else:
+                # Per-worksheet hash comparison for changed books
+                should_process = False
+                if sheet != 0.0:
+                    try:
+                        ws = get_sheet_with_retries(book, sheet)
+                        values = get_sheet_values(ws)
+                        new_hash = compute_sheet_hash(values)
+                        stored = hash_df[(hash_df["Sheet Name"] == sheet) & (hash_df["Spreadsheet Key"] == sheet_url)]
+                        if len(stored) == 0 or stored.iloc[0]["Content Hash"] != new_hash:
+                            should_process = True
+                        hash_updates.append((sheet, sheet_url, new_hash))
+                    except Exception as e:
+                        print("Error checking hash for {}: {}".format(sheet, e))
+                        should_process = True  # Process on error to be safe
+
+            if should_process:
                 start = time.time()
                 if sheet[:2] == '##':
                     skills, lesson_id, skills_dict, meta = process_sheet(sheet_url, sheet, default_path, is_local, 'FALSE',
@@ -234,15 +273,31 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
     file = open(os.path.join("..", "skillModel.json"), "w")
     finish_skill_model(skill_model, file)
 
-    # cleared changed sheet list, only support google sheets
-    if is_local == "online":
-        changed_df = pd.DataFrame(index=range(len(hash_df)), columns=["Changed Sheets"])
-        changed_df["Changed Sheets"] = ""
+    # Update Content Hash tab with new hashes and timestamps
+    if is_local == "online" and hash_updates:
+        now = datetime.now(timezone.utc).isoformat()
+        for sheet_name, spreadsheet_key, content_hash in hash_updates:
+            mask = (hash_df["Sheet Name"] == sheet_name) & (hash_df["Spreadsheet Key"] == spreadsheet_key)
+            if mask.any():
+                hash_df.loc[mask, "Content Hash"] = content_hash
+                hash_df.loc[mask, "Last Checked"] = now
+            else:
+                new_row = pd.DataFrame([{
+                    "Sheet Name": sheet_name,
+                    "Content Hash": content_hash,
+                    "Spreadsheet Key": spreadsheet_key,
+                    "Last Checked": now
+                }])
+                hash_df = pd.concat([hash_df, new_row], ignore_index=True)
+
+        # Replace 0.0 placeholders back to empty strings for writing
+        hash_df.replace(0.0, '', inplace=True)
         try:
             hash_sheet = get_sheet_online(URL_SPREADSHEET_KEY).worksheet('Content Hash')
-            set_with_dataframe(hash_sheet, changed_df, col=4)
+            hash_sheet.clear()
+            set_with_dataframe(hash_sheet, hash_df)
         except Exception as e:
-            print('Fail to clear changed sheets list')
+            print('Failed to update Content Hash tab: {}'.format(e))
     
     if full_update and os.path.isdir(dest_path):
         shutil.rmtree(dest_path)

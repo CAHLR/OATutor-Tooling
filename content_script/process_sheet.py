@@ -3,6 +3,8 @@ import os
 import shutil
 import time
 import uuid
+import hashlib
+import json
 from datetime import datetime
 import gspread
 import pandas as pd
@@ -51,7 +53,7 @@ def get_sheet_with_retries(book, sheet_name, retries=5, delay=5):
     raise Exception(f"Failed to fetch worksheet '{sheet_name}' after {retries} retries.")
     
 def get_sheet_online(spreadsheet_key, retries=5):
-    scope = ['https://spreadsheets.google.com/feeds']
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive.metadata.readonly']
     credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
     gc = gspread.authorize(credentials)
     
@@ -78,6 +80,11 @@ def get_sheet_values(worksheet, retries=5):
             exponential_backoff(attempt)
     raise Exception("Max retries reached. Could not fetch sheet values.")
     
+def compute_sheet_hash(values):
+    """Compute MD5 hash of worksheet content from get_all_values() result."""
+    content = json.dumps(values, sort_keys=True)
+    return hashlib.md5(content.encode('utf-8')).hexdigest()
+
 def get_all_url(bank_url, is_local):
     if is_local == "online":
 
@@ -95,7 +102,7 @@ def get_all_url(bank_url, is_local):
     
     else:
         url_df = pd.read_excel(bank_url, sheet_name='URLs', engine='openpyxl')
-        hash_df = pd.DataFrame(columns=["Sheet Name", "Content Hash", "Changed Sheets"])
+        hash_df = pd.DataFrame(columns=["Sheet Name", "Content Hash", "Spreadsheet Key", "Last Checked"])
 
     
     # url_df = url_df[["Book", "URL", "OER", "License", "Editor Sheet", "Editor OER", "Editor License"]]
@@ -114,7 +121,12 @@ def get_all_url(bank_url, is_local):
             url_df[col] = url_df[col].replace('', 0.0)
             url_df[col] = url_df[col].replace('nan', 0.0)
 
-    hash_df = hash_df[["Sheet Name", "Content Hash", "Changed Sheets"]]
+    # Handle both old and new Content Hash tab formats
+    expected_cols = ["Sheet Name", "Content Hash", "Spreadsheet Key", "Last Checked"]
+    for col in expected_cols:
+        if col not in hash_df.columns:
+            hash_df[col] = ""
+    hash_df = hash_df[expected_cols]
     hash_df = hash_df.astype(str)
     hash_df.replace('', 0.0, inplace=True)
     hash_df.replace('nan', 0.0, inplace=True)
