@@ -96,9 +96,12 @@ def get_all_url(bank_url, is_local):
         url_table = url_sheet.get_all_values()
         url_df = pd.DataFrame(url_table[1:], columns=url_table[0])
 
-        hash_sheet = book.worksheet('Content Hash')
-        hash_table = hash_sheet.get_all_values()
-        hash_df = pd.DataFrame(hash_table[1:], columns=hash_table[0])
+        try:
+            hash_sheet = book.worksheet('!!Content Hash')
+            hash_table = hash_sheet.get_all_values()
+            hash_df = pd.DataFrame(hash_table[1:], columns=hash_table[0])
+        except gspread.exceptions.WorksheetNotFound:
+            hash_df = pd.DataFrame(columns=["Sheet Name", "Content Hash", "Spreadsheet Key", "Last Checked"])
     
     else:
         url_df = pd.read_excel(bank_url, sheet_name='URLs', engine='openpyxl')
@@ -128,8 +131,7 @@ def get_all_url(bank_url, is_local):
             hash_df[col] = ""
     hash_df = hash_df[expected_cols]
     hash_df = hash_df.astype(str)
-    hash_df.replace('', 0.0, inplace=True)
-    hash_df.replace('nan', 0.0, inplace=True)
+    hash_df.replace('nan', '', inplace=True)
 
     return url_df, hash_df
 

@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import time
 import shutil
+import gspread
 from gspread_dataframe import set_with_dataframe
 from openpyxl import load_workbook
 import json
@@ -192,7 +193,7 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
                 last_update_time = book.get_lastUpdateTime()
                 book_hash_rows = hash_df[hash_df["Spreadsheet Key"] == sheet_url]
                 stored_times = book_hash_rows["Last Checked"]
-                stored_times = stored_times[stored_times != 0.0]
+                stored_times = stored_times[stored_times != '']
                 if len(stored_times) > 0:
                     max_stored = str(stored_times.max())
                     if last_update_time <= max_stored:
@@ -227,7 +228,7 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
             else:
                 # Per-worksheet hash comparison using batch-fetched data
                 should_process = False
-                if sheet != 0.0:
+                if sheet:
                     try:
                         if sheet in batch_values:
                             values = batch_values[sheet]
@@ -236,7 +237,8 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
                             values = get_sheet_values(ws)
                         new_hash = compute_sheet_hash(values)
                         stored = hash_df[(hash_df["Sheet Name"] == sheet) & (hash_df["Spreadsheet Key"] == sheet_url)]
-                        if len(stored) == 0 or stored.iloc[0]["Content Hash"] != new_hash:
+                        stored_hash = stored.iloc[0]["Content Hash"] if len(stored) > 0 else ""
+                        if not stored_hash or stored_hash != new_hash:
                             should_process = True
                         hash_updates.append((sheet, sheet_url, new_hash))
                     except Exception as e:
@@ -330,14 +332,16 @@ def create_total(default_path, is_local, sheet_names=None, bank_url=None, full_u
                 }])
                 hash_df = pd.concat([hash_df, new_row], ignore_index=True)
 
-        # Replace 0.0 placeholders back to empty strings for writing
-        hash_df.replace(0.0, '', inplace=True)
         try:
-            hash_sheet = get_sheet_online(URL_SPREADSHEET_KEY).worksheet('Content Hash')
+            bank_book = get_sheet_online(URL_SPREADSHEET_KEY)
+            try:
+                hash_sheet = bank_book.worksheet('!!Content Hash')
+            except gspread.exceptions.WorksheetNotFound:
+                hash_sheet = bank_book.add_worksheet(title='!!Content Hash', rows=1000, cols=4)
             hash_sheet.clear()
             set_with_dataframe(hash_sheet, hash_df)
         except Exception as e:
-            print('Failed to update Content Hash tab: {}'.format(e))
+            print('Failed to update !!Content Hash tab: {}'.format(e))
     
     if full_update and os.path.isdir(dest_path):
         shutil.rmtree(dest_path)
