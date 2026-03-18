@@ -81,8 +81,18 @@ def get_sheet_values(worksheet, retries=5):
     raise Exception("Max retries reached. Could not fetch sheet values.")
     
 def compute_sheet_hash(values):
-    """Compute MD5 hash of worksheet content from get_all_values() result."""
-    content = json.dumps(values, sort_keys=True)
+    """Compute MD5 hash of worksheet content columns only (excludes validator/debug columns written by the script).
+    Detects 'Validator Check' in the header row and only hashes columns before it."""
+    if not values or len(values) < 1:
+        return hashlib.md5(b'').hexdigest()
+    header = values[0]
+    # Find where script-written columns start
+    try:
+        cutoff = header.index('Validator Check')
+    except ValueError:
+        cutoff = len(header)  # No validator columns yet, hash everything
+    trimmed = [row[:cutoff] for row in values]
+    content = json.dumps(trimmed, sort_keys=True)
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
 def get_all_url(bank_url, is_local):
