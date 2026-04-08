@@ -406,6 +406,12 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
             if str(e) != "Error encountered in validator":  # unknown error
                 error_row = (df[df['Problem Name'] == problem_name].index)[0]
                 error_df.at[error_row, 'Validator Check'] = str(e)
+            # Restore backup so old content isn't lost when validation fails
+            if old_path and os.path.isdir(old_path):
+                original_path = os.path.join(os.path.dirname(old_path), os.path.basename(old_path)[1:])
+                if os.path.isdir(original_path):
+                    shutil.rmtree(original_path)
+                shutil.move(old_path, original_path)
             continue
 
         # process problem skill(s)
