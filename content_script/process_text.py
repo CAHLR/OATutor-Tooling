@@ -45,6 +45,8 @@ def preprocess_text_to_latex(text, tutoring=False, stepMC=False, render_latex="T
     if render_latex:
         text = str(text)
         text = regex.sub(lambda match: replace[match.group(0)], text)
+        if text == 'pi':
+            text = f'$$\\{text}$$'
         if not re.findall(r"[\[|\(][-\d\s\w/]+,[-\d\s\w/]+[\)|\]]", text): #Checking to see if there are coordinates/intervals before replacing () with []
             text = regex.sub(lambda match: conditionally_replace[match.group(0)], text)
 
