@@ -320,7 +320,7 @@ def handle_word(word, coord=True):
     for item in scientific_notation:
         word = re.sub(item[0] + r"\{" + item[1] + r"\}", item[0] + "\\\\times {" + item[1] + "}", word)
     
-    word = re.sub(r"\\operatorname{([^(negneg)]*)negneg}\\left\(", r"\g<1>\\left(-", word)
+    word = re.sub(r"\\operatorname{(.*?(?=negneg))negneg}\\left\(", r"\g<1>\\left(-", word)
     word = re.sub(r"\\operatorname{invert}", r"\\pm ", word)
     word = re.sub(r"\+plusminus\+", "\\\\pm ", word)
     word = re.sub(r"\\operatorname{(\w)}", r"\g<1>", word)
