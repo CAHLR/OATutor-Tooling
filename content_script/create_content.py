@@ -161,7 +161,12 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
     scaff_ans = [answer]
     
     if type(mc_answers) != float and type(mc_answers) != np.float64:
-        mc_answers = [preprocess_text_to_latex(mc_answer, True, True, render_latex=latex, verbosity=verbosity)[0] for mc_answer in mc_answers.split("|") if mc_answer]
+        choice_list = [choice for choice in mc_answers.split('|') if choice]
+        if answer not in choice_list:
+            choice_list.append(answer)
+            choice_list.sort()
+
+        mc_answers = [preprocess_text_to_latex(mc_answer, True, True, render_latex=latex, verbosity=verbosity)[0] for mc_answer in choice_list]
         answer = preprocess_text_to_latex(answer, True, True, render_latex=latex, verbosity=verbosity)[0]
         scaff_ans = [answer]
 
