@@ -450,7 +450,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         default_pathway_json_file.write(default_pathway_str)
         default_pathway_json_file.close()
         figure_path, image_df_str = write_problem_json(problem_row, problem_name, problem_json_path, course_name, sheet_name, 
-                                                      images, path, figure_path, verbosity, variabilization, latex, old_path)
+                                                      images, path, figure_path, verbosity, variabilization, latex, old_path, lesson_id)
         
         # add md5 checksum to image_df
         debug_df.iloc[first_problem_index, 3] = image_df_str
@@ -543,3 +543,6 @@ if __name__ == '__main__':
     else:
         latex = 'TRUE'
     process_sheet(sheet_key, sheet_name, '../OpenStax1', is_local, latex, course_name="", mode="process_sheet")
+
+# if __name__ == '__main__':
+#     process_sheet("OpenStax_ Pre-Calculus.xlsx", "2.3 - Modeling with Linear Func", "../OpenStax", "local", "TRUE", course_name="", mode="process_sheet")
