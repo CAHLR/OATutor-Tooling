@@ -200,7 +200,7 @@ def update_experimental_params(params):
     print(f"  Updated: {updated} | Skipped (NaN params): {skipped_nan} | Not in JSON: {skipped_missing}")
 
     with open(path, "w") as f:
-        json.dump(bkt_params, f, indent=2)
+        json.dump(bkt_params, f, indent=4)   # match the committed file's 4-space indent
     print(f"  Written to {path}")
 
 
