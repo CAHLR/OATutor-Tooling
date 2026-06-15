@@ -241,7 +241,7 @@ def write_scaffold_json(row, current_step_name, oer, license, tutoring, images, 
 
 
 def write_problem_json(problem_row, problem_name, problem_json_path, course_name, sheet_name, images, path, 
-                       figure_path, verbosity, variabilization, latex, old_path):
+                       figure_path, verbosity, variabilization, latex, old_path, lesson_id):
     problem_images, image_df_str = "", ""
     if isinstance(problem_row.get("Images (space delimited)"), str):
         if not images:
@@ -254,12 +254,12 @@ def write_problem_json(problem_row, problem_name, problem_json_path, course_name
         prob_js = create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                                       problem_row["OER src"], problem_row["License"], problem_images,
                                       var_str=problem_row["Variabilization"], latex=latex,
-                                      verbosity=verbosity, course_name=course_name, sheet_name=sheet_name)
+                                      verbosity=verbosity, course_name=course_name, sheet_name=sheet_name, lesson_id=lesson_id)
     else:
         prob_js = create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                                       problem_row["OER src"], problem_row["License"], problem_images, 
                                       latex=latex, verbosity=verbosity, course_name=course_name, 
-                                      sheet_name=sheet_name)
+                                      sheet_name=sheet_name, lesson_id=lesson_id)
 
     with open(problem_json_path, "w", encoding="utf-8") as file:
         file.write(prob_js)

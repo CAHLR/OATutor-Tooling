@@ -26,13 +26,17 @@ def create_variabilization(variabilization):
     return var_dict
 
 
-def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=True,verbosity=False,course_name="",sheet_name=""):
+def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=True,verbosity=False,course_name="",sheet_name="",lesson_id=""):
     if type(body) == float or type(body) == np.float64:
         body= ""
     for image in images:
         body += "\\n##{0}##".format(image)
     if type(title) == float or type(title) == np.float64:
         title = ""
+    if type(oer) == float or type(oer) == np.float64:
+        oer = ""
+    if type(license) == float or type(license) == np.float64:
+        license = ""
 
     title, title_latex = preprocess_text_to_latex(title, render_latex=latex, verbosity=verbosity)
     body, body_latex = preprocess_text_to_latex(body, render_latex=latex, verbosity=verbosity)
@@ -48,6 +52,7 @@ def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=T
         "oer": oer,
         "license": license,
         "lesson": sheet_name,
+        "lessonId": lesson_id,
         "courseName": course_name
     }
     
