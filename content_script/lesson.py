@@ -60,6 +60,7 @@ def create_lesson_plan(sheet, skills, lesson_id, meta):
         "name": lesson_name,
         "topics": lesson_topics,
         "allowRecycle": True,
+        "chat_display_mode": "Window",
         "learningObjectives": dict(zip(skills, [0.85 for _ in skills]))
     }
 
