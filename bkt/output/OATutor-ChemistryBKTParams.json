@@ -1,0 +1,20 @@
+{
+    "stoichiometry": {
+        "probMastery": 0.68851,
+        "probTransit": 0.030904,
+        "probSlip": 0.429285,
+        "probGuess": 0.100752
+    },
+    "post_test": {
+        "probMastery": 0.568381,
+        "probTransit": 0.008494,
+        "probSlip": 0.255397,
+        "probGuess": 0.380092
+    },
+    "pre_test": {
+        "probMastery": 0.568381,
+        "probTransit": 0.008494,
+        "probSlip": 0.255397,
+        "probGuess": 0.380092
+    }
+}

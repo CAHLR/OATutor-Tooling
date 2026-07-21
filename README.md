@@ -4,7 +4,7 @@
 This repository is meant to store content and quality assurance tools used for the OATutor system developed by Computational Approaches to Human Learning at UC Berkeley. The OATutor system was developed to make learning more accessible and provide an open-source tutoring system for researchers, teachers, and students to access, disseminate, and better understand learning materials.
 
 ## Structure of README
-The README of the repository is composed of two main parts. The first part explains the usage and structure of the content generation script, which is located under the TerminalScript directory, and the second part explains the usage of the Selenium testing and answer validation script, which is located under the selenium directory.
+The README of the repository is composed of three main parts: the usage and structure of the content generation script (under the TerminalScript directory), the usage of the Selenium testing and answer validation script (under the selenium directory), and the BKT parameter fitting pipeline (under the bkt directory).
 
 ## Content Script General Usage
 To run script on one sheet, change directory into TerminalScript, and use the command: 
@@ -179,3 +179,11 @@ This could be because the library project has not been shared with you yet. Mess
 4. Choose the library type
 5. In the description, roughly describe what feature you added
 6. Deploy
+
+## BKT Parameter Fitting
+
+OATutor tracks student mastery per knowledge component (KC) using Bayesian Knowledge Tracing (BKT) — a 2-state hidden Markov model with four parameters per KC (`probMastery`, `probTransit`, `probSlip`, `probGuess`), stored in `bkt-params/experimentalBKTParams.json` in each content repo. Every KC ships with an untuned flat `0.1/0.1/0.1/0.1` default; the scripts under `bkt/` fit real values from Firebase submission data wherever there's enough data to trust the fit, and fill the rest with domain-averaged values from KCs that do have trustworthy fits.
+
+Pipeline, in order: `pull_submissions.py` (Firebase → CSV) → `fit_bkt.py` (pyBKT fit) → `evaluate_bkt.ipynb` (guide notebook — evaluate + tier fits by trustworthiness) → `fill_disqualified_kc.py` (write donor-fitted + domain-averaged params to `bkt/output/`) → commit the output into each content repo.
+
+See [`bkt/bkt_process.md`](bkt/bkt_process.md) for the full step-by-step, known pitfalls (a silent pyBKT bug, a dangerous auto-deploy cron on the main content repo, etc.), and current rollout status.
