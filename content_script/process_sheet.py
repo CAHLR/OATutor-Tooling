@@ -270,9 +270,34 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
                 time.sleep(40)
             return None, None, None, {}
         df = df.astype(str)
-        df.replace('', 0.0, inplace=True)
-        df.replace(' ', 0.0, inplace=True)
 
+        # === PATCH START: custom Lesson ID / Problem ID logic ===
+        # Clean up: replace blanks only in non-ID columns
+        for col in df.columns:
+            if col not in ["Lesson ID", "Problem ID"]:
+                df[col] = df[col].replace(['', ' ', 'nan', 'NaN'], 0.0)
+            else:
+                df[col] = df[col].replace([' ', 'nan', 'NaN'], '')
+
+        # Generate Lesson ID only once for first (2nd) row
+        if "Lesson ID" in df.columns:
+            first_lesson_id = str(df.at[0, "Lesson ID"]).strip()
+            if not first_lesson_id or first_lesson_id in ['0', '0.0', 'nan', 'NaN']:
+                df.at[0, "Lesson ID"] = generate_id()
+
+        # Generate Problem IDs for all "problem" rows only
+        if "Row Type" in df.columns and "Problem ID" in df.columns:
+            for idx, row in df.iterrows():
+                row_type = str(row["Row Type"]).strip().lower()
+                if row_type == "problem":
+                    current_id = str(row["Problem ID"]).strip()
+                    if not current_id or current_id in ['0', '0.0', 'nan', 'NaN']:
+                        df.at[idx, "Problem ID"] = generate_id()
+                else:
+                    # Keep non-problem rows empty (no zeros)
+                    if str(row["Problem ID"]).strip() in ['0', '0.0']:
+                        df.at[idx, "Problem ID"] = ''
+        # === PATCH END ===
 
     elif is_local == "local":
         df = pd.read_excel(spreadsheet_key, sheet_name=sheet_name, engine='openpyxl')
@@ -343,10 +368,30 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
             return None, None, None, {}
 
         df = df.astype(str)
-        df.replace('', 0.0, inplace=True)
-        df.replace(' ', 0.0, inplace=True)
-        df.replace('nan', 0.0, inplace=True)
 
+        # === PATCH START (local mode identical logic) ===
+        for col in df.columns:
+            if col not in ["Lesson ID", "Problem ID"]:
+                df[col] = df[col].replace(['', ' ', 'nan', 'NaN'], 0.0)
+            else:
+                df[col] = df[col].replace([' ', 'nan', 'NaN'], '')
+
+        if "Lesson ID" in df.columns:
+            first_lesson_id = str(df.at[0, "Lesson ID"]).strip()
+            if not first_lesson_id or first_lesson_id in ['0', '0.0', 'nan', 'NaN']:
+                df.at[0, "Lesson ID"] = generate_id()
+
+        if "Row Type" in df.columns and "Problem ID" in df.columns:
+            for idx, row in df.iterrows():
+                row_type = str(row["Row Type"]).strip().lower()
+                if row_type == "problem":
+                    current_id = str(row["Problem ID"]).strip()
+                    if not current_id or current_id in ['0', '0.0', 'nan', 'NaN']:
+                        df.at[idx, "Problem ID"] = generate_id()
+                else:
+                    if str(row["Problem ID"]).strip() in ['0', '0.0']:
+                        df.at[idx, "Problem ID"] = ''
+        # === PATCH END ===
 
     elif is_local != "local" and is_local != "online":
         raise NameError(
@@ -524,6 +569,16 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
 
     if is_local == "online":
         try:
+            # === PATCH START ===
+            # Preserve any existing Lesson IDs before writing back
+            if "Lesson ID" in df.columns and "Lesson ID" in error_debug_df.columns:
+                error_debug_df["Lesson ID"].fillna(df["Lesson ID"], inplace=True)
+    
+            # (Optional) also preserve existing Problem IDs if same issue happens
+            if "Problem ID" in df.columns and "Problem ID" in error_debug_df.columns:
+                error_debug_df["Problem ID"].fillna(df["Problem ID"], inplace=True)
+                # === PATCH END ===
+    
             set_with_dataframe(worksheet, error_debug_df, col=col)
         except Exception as e:
             print('Fail to write to google sheet. Waiting...')
