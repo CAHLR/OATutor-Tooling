@@ -1,0 +1,92 @@
+{
+    "terminology": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "spreadsheets": {
+        "probMastery": 0.74601,
+        "probTransit": 0.110334,
+        "probSlip": 0.196987,
+        "probGuess": 0.399446
+    },
+    "sql": {
+        "probMastery": 0.453741,
+        "probTransit": 0.119725,
+        "probSlip": 0.035494,
+        "probGuess": 0.624139
+    },
+    "professional_presentation_skills": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "research": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "data_validity": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "and_levels_of_measurement": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "foundational_math": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "frequency": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "frequency_tables": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "intermediate_sql": {
+        "probMastery": 0.411073,
+        "probTransit": 0.072322,
+        "probSlip": 0.00031,
+        "probGuess": 0.524339
+    },
+    "data_presentation_skills": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "data_ethics": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    },
+    "professional_learning": {
+        "probMastery": 0.460947,
+        "probTransit": 0.106111,
+        "probSlip": 0.085615,
+        "probGuess": 0.495624
+    },
+    "proffesional_learning": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    }
+}

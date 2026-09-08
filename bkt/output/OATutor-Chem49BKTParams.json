@@ -1,0 +1,26 @@
+{
+    "stoichiometry": {
+        "probMastery": 0.68851,
+        "probTransit": 0.030904,
+        "probSlip": 0.429285,
+        "probGuess": 0.100752
+    },
+    "quantum": {
+        "probMastery": 0.568381,
+        "probTransit": 0.008494,
+        "probSlip": 0.255397,
+        "probGuess": 0.380092
+    },
+    "thermo": {
+        "probMastery": 0.568381,
+        "probTransit": 0.008494,
+        "probSlip": 0.255397,
+        "probGuess": 0.380092
+    },
+    "thermo2": {
+        "probMastery": 0.1,
+        "probTransit": 0.1,
+        "probSlip": 0.1,
+        "probGuess": 0.1
+    }
+}

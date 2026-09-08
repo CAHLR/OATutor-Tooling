@@ -35,9 +35,15 @@ skillModel.json
 firebase_service_account.json
 /home/runner/work/oatutor-askoski-705644bfdf34.json
 oatutor-firebase-adminsdk.json
+service_account.json
 .env
 
 # Student Data
 Data Analytics/data
+bkt/data
 
 .OpenStax Validator
+.venv/
+
+# Caches
+sheet_cache.json
