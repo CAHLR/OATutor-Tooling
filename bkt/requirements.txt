@@ -1,6 +1,0 @@
-google-cloud-firestore
-google-auth
-pandas
-matplotlib
-pyBKT==1.4.1
-scikit-learn<1.6
