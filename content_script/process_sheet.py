@@ -146,6 +146,12 @@ def get_all_url(bank_url, is_local):
     return url_df, hash_df
 
 
+def validator_col(header, fallback):
+    """1-based column of the sheet's "Validator Check" header, so the write-back lands on the existing output
+    columns however many content columns come before it. Falls back to the counted position on a never-validated sheet."""
+    return header.index("Validator Check") + 1 if "Validator Check" in header else fallback
+
+
 def next_available_row(worksheet):
     str_list = list(filter(None, worksheet.col_values(1)))
     return str(len(str_list) + 1)
@@ -247,8 +253,11 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         preserved = ["Problem Name", "Row Type", "Title", "Body Text", "Answer", "answerType", "HintID", "Dependency",
                      "mcChoices", "Images (space delimited)", "Parent", "OER src", "openstax KC", "KC", "Taxonomy", "License", 
                      "Problem ID", "Lesson ID", "Image Checksum"]
+        alt_text = ALT_TEXT_COL in df.columns
         if variabilization:
             preserved.append("Variabilization")
+        if alt_text:
+            preserved.append(ALT_TEXT_COL)
         if meta: 
             preserved.append("Meta")
         try:
@@ -260,10 +269,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
             error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
             error_df.at[0, 'Validator Check'] = str(e)
             try:
-                if variabilization:
-                    set_with_dataframe(worksheet, error_df, col=19)
-                else:
-                    set_with_dataframe(worksheet, error_df, col=18)
+                set_with_dataframe(worksheet, error_df, col=validator_col(table[0], 18 + int(variabilization) + int(alt_text)))
             except Exception as e:
                 print('Fail to write to google sheet. Waiting...')
                 print('sheetname:', sheet_name, e)
@@ -304,6 +310,10 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
                 keep = ["Problem Name", "Row Type", "Title", "Body Text", "Answer", "answerType", "HintID", "Dependency",
                      "mcChoices", "Images (space delimited)", "Parent", "OER src", "openstax KC", "KC", "Taxonomy", "License", 
                      "Problem ID", "Lesson ID", "Image Checksum"]
+            alt_text = ALT_TEXT_COL in df.columns
+            if alt_text:
+                # sit next to the images it describes, as on the content sheets
+                keep.insert(keep.index("Images (space delimited)") + 1, ALT_TEXT_COL)
             df = df[keep]
 
             with pd.ExcelWriter(spreadsheet_key, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
@@ -322,7 +332,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
                 if "Validator Check" in df.columns:
                     val_col = df.columns.get_loc("Validator Check") - 1
                 else:
-                    val_col = 16 + int(variabilization)
+                    val_col = 16 + int(variabilization) + int(alt_text)
 
                 if meta:
                     add = ['Meta']
@@ -524,7 +534,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
 
     if is_local == "online":
         try:
-            set_with_dataframe(worksheet, error_debug_df, col=col)
+            set_with_dataframe(worksheet, error_debug_df, col=validator_col(table[0], col))
         except Exception as e:
             print('Fail to write to google sheet. Waiting...')
             print('sheetname:', sheet_name, e)

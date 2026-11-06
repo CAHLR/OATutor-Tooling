@@ -28,7 +28,7 @@ This will only update the json content files corresponding to problems that are 
 The script is also responsible for auto-checking the content format, and providing instant feedback to content editors directly through Google sheets. 
 
 ## How to structure content
-The script in this repo reads in Google Sheets and outputs json files ready to be processed by the system. For every sheet procesed by the system, there are some requirements for headers and notation that ensure the script is read properly. Every sheet must have: "Problem Name", "Row Type", "Title", "Body Text", "Answer", "answerType", "HintID", "Dependency", "mcChoices", "Images (space delimited)", "Parent", "OER src", "openstax KC", "KC", and "Taxonomy", and may optionally include "Variabilization" and "Meta".
+The script in this repo reads in Google Sheets and outputs json files ready to be processed by the system. For every sheet procesed by the system, there are some requirements for headers and notation that ensure the script is read properly. Every sheet must have: "Problem Name", "Row Type", "Title", "Body Text", "Answer", "answerType", "HintID", "Dependency", "mcChoices", "Images (space delimited)", "Parent", "OER src", "openstax KC", "KC", and "Taxonomy", and may optionally include "Variabilization", "Alt Text (pipe delimited)" and "Meta".
 
 ## Content Organization
 The content in OATutor is organized into different lessons. On a Google Sheets Document, each lesson should have its own sheet (i.e. tab). Each lesson has different KC's, or knowledge components, associated with it, and the OATutor system attempts to ensure that a student has only finished the lesson after demonstrating mastery of each KC within the lesson.
@@ -58,6 +58,8 @@ Dependency: This field enables the OATutor to open hints only after certain othe
 mcChoices: This field is only filled in if the answerType is "mc". One of the choices here must be exactly similar to the answer provided in the answer field. This field is "|" delimited. For example, if the possible answers are "square", "cirle", "triangle", or "octagon", then this field must be "square|circle|triangle|octagon" with the Answer field being either "square", "cirle", "triangle", or "octagon". 
 
 Images (space delimited): If you want to provide images in the questions, you can do so here. Please provide the URL's to the images themselves, not a URL that contains the image but may have other content.
+
+Alt Text (pipe delimited): Optional. Alt text for the images in the "Images (space delimited)" cell of the same row, separated by "|" and in the same order as the image URLs (the 2nd alt text describes the 2nd image). Leave an entry empty to skip an image. Alt text must not contain "|". Put the column directly right of "Images (space delimited)". It is written to the output json as `figureAlts` (image file name to alt text) on the problem, step, hint or scaffold.
 
 Parent: The OATutor system supports subhints and sub-scaffolds, which are hints and scaffolds provided to help students answer hints and scaffolds. For example, if the hint with id "h3" needs subhints, then that can be expressed here by setting the Parent field to "h3". The hint id for subhint is denoted analogous to regular hint id's, except the "h" is replaced with an "s".
 

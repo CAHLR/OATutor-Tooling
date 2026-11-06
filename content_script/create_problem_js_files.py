@@ -16,6 +16,17 @@ fake_headers = {
 }
 
 
+ALT_TEXT_COL = "Alt Text (pipe delimited)"
+
+
+def build_figure_alts(names, alt_cell):
+    """Pairs the pipe-delimited alt texts of a row with the figure names saved for that row, in order."""
+    if not names or not isinstance(alt_cell, str):
+        return {}
+    alts = [alt.strip() for alt in alt_cell.split("|")]
+    return {name: alt for name, alt in zip(names, alts) if alt and alt.lower() != "nan"}
+
+
 def create_default_pathway(tutoring):
     return json.dumps(tutoring, indent=4)
 
@@ -99,11 +110,11 @@ def write_step_json(default_path, problem_name, row, step_count, tutoring, skill
         if variabilization and type(row["Variabilization"]) != float:
             step_file.write(create_step(problem_name, row['Title'], row["Body Text"], row["Answer"], row["answerType"],
                                         step_count, row.get("mcChoices", ""), step_images, 
-                                        var_str=row["Variabilization"], latex=latex, verbosity=verbosity))
+                                        var_str=row["Variabilization"], latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(step_images, row.get(ALT_TEXT_COL))))
         else:
             step_file.write(create_step(problem_name, row['Title'], row["Body Text"], row["Answer"], row["answerType"],
                                         step_count, row.get("mcChoices", ""), step_images, 
-                                        latex=latex, verbosity=verbosity))
+                                        latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(step_images, row.get(ALT_TEXT_COL))))
 
     skills[current_step_name] = problem_skills
 
@@ -125,23 +136,23 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
                                               row["Body Text"], oer, license, row["Dependency"], hint_images,
                                               hint_dic=hint_dic, var_str=row["Variabilization"],
-                                              latex=latex, verbosity=verbosity)
+                                              latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
         else:
             subhint, subhint_id = create_hint(current_step_name, hint_id, row["Title"],
                                               row["Body Text"], oer, license, row["Dependency"], hint_images,
-                                              hint_dic=hint_dic, latex=latex, verbosity=verbosity)
+                                              hint_dic=hint_dic, latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
     else:
         if variabilization and type(row["Variabilization"]) != float:
             subhint, subhint_id = create_scaffold(current_step_name, hint_id, row["Title"],
                                                   row["Body Text"], row["answerType"], row["Answer"],
                                                   row["mcChoices"], oer, license, row["Dependency"], hint_images,
                                                   hint_dic=hint_dic, var_str=row["Variabilization"],
-                                                  latex=latex, verbosity=verbosity)
+                                                  latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
         else:
             subhint, subhint_id = create_scaffold(current_step_name, hint_id, row["Title"],
                                                   row["Body Text"], row["answerType"], row["Answer"],
                                                   row["mcChoices"], oer, license, row["Dependency"], hint_images,
-                                                  hint_dic=hint_dic, latex=latex, verbosity=verbosity)
+                                                  hint_dic=hint_dic, latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
 
     hint_dic[row["HintID"]] = subhint_id
     current_subhints.append(subhint)
@@ -154,13 +165,13 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
                                             previous_tutor["Dependency"], previous_images,
                                             subhints=current_subhints, hint_dic=hint_dic,
                                             var_str=previous_tutor["Variabilization"],
-                                            latex=latex, verbosity=verbosity)
+                                            latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(previous_images, previous_tutor.get(ALT_TEXT_COL)))
         else:
             previous, hint_id = create_hint(current_step_name, previous_tutor["HintID"],
                                             previous_tutor["Title"], previous_tutor["Body Text"], oer, license, 
                                             previous_tutor["Dependency"], previous_images,
                                             subhints=current_subhints, hint_dic=hint_dic, latex=latex,
-                                            verbosity=verbosity)
+                                            verbosity=verbosity, figure_alts=build_figure_alts(previous_images, previous_tutor.get(ALT_TEXT_COL)))
     else:
         if variabilization and type(previous_tutor["Variabilization"]) != float:
             previous, hint_id = create_scaffold(current_step_name, previous_tutor["HintID"],
@@ -170,7 +181,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
                                                 previous_tutor["Dependency"], previous_images,
                                                 subhints=current_subhints, hint_dic=hint_dic,
                                                 var_str=previous_tutor["Variabilization"],
-                                                latex=latex, verbosity=verbosity)
+                                                latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(previous_images, previous_tutor.get(ALT_TEXT_COL)))
         else:
             previous, hint_id = create_scaffold(current_step_name, previous_tutor["HintID"],
                                                 previous_tutor["Title"], previous_tutor["Body Text"],
@@ -178,7 +189,7 @@ def write_subhint_json(row, row_type, current_step_name, current_subhints, oer, 
                                                 previous_tutor["mcChoices"], oer, license, 
                                                 previous_tutor["Dependency"], previous_images,
                                                 subhints=current_subhints, hint_dic=hint_dic,
-                                                latex=latex, verbosity=verbosity)
+                                                latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(previous_images, previous_tutor.get(ALT_TEXT_COL)))
     tutoring.append(previous)
 
     return images, hint_dic, current_subhints, tutoring, figure_path, image_df_str
@@ -197,11 +208,11 @@ def write_hint_json(row, current_step_name, oer, license, tutoring, images, figu
         hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
                                     row["Body Text"], oer, license, row["Dependency"], hint_images,
                                     hint_dic=hint_dic, var_str=row["Variabilization"],
-                                    latex=latex, verbosity=verbosity)
+                                    latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
     else:
         hint, full_id = create_hint(current_step_name, row["HintID"], row["Title"],
                                     row["Body Text"], oer, license, row["Dependency"], hint_images,
-                                    hint_dic=hint_dic, latex=latex, verbosity=verbosity)
+                                    hint_dic=hint_dic, latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(hint_images, row.get(ALT_TEXT_COL)))
 
     hint_dic[row["HintID"]] = full_id
     tutoring.append(hint)
@@ -225,12 +236,12 @@ def write_scaffold_json(row, current_step_name, oer, license, tutoring, images, 
                                          row["Body Text"], row["answerType"], row["Answer"],
                                          row["mcChoices"], oer, license, row["Dependency"], scaff_images,
                                          hint_dic=hint_dic, var_str=row["Variabilization"],
-                                         latex=latex, verbosity=verbosity)
+                                         latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(scaff_images, row.get(ALT_TEXT_COL)))
     else:
         scaff, full_id = create_scaffold(current_step_name, row["HintID"], row["Title"],
                                          row["Body Text"], row["answerType"], row["Answer"],
                                          row["mcChoices"], oer, license, row["Dependency"], scaff_images,
-                                         hint_dic=hint_dic, latex=latex, verbosity=verbosity)
+                                         hint_dic=hint_dic, latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(scaff_images, row.get(ALT_TEXT_COL)))
 
     hint_dic[row["HintID"]] = full_id
     tutoring.append(scaff)
@@ -254,11 +265,11 @@ def write_problem_json(problem_row, problem_name, problem_json_path, course_name
         prob_js = create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                                       problem_row["OER src"], problem_row["License"], problem_images,
                                       var_str=problem_row["Variabilization"], latex=latex,
-                                      verbosity=verbosity, course_name=course_name, sheet_name=sheet_name, lesson_id=lesson_id)
+                                      verbosity=verbosity, figure_alts=build_figure_alts(problem_images, problem_row.get(ALT_TEXT_COL)), course_name=course_name, sheet_name=sheet_name, lesson_id=lesson_id)
     else:
         prob_js = create_problem_json(problem_name, problem_row["Title"], problem_row["Body Text"],
                                       problem_row["OER src"], problem_row["License"], problem_images, 
-                                      latex=latex, verbosity=verbosity, course_name=course_name, 
+                                      latex=latex, verbosity=verbosity, figure_alts=build_figure_alts(problem_images, problem_row.get(ALT_TEXT_COL)), course_name=course_name, 
                                       sheet_name=sheet_name, lesson_id=lesson_id)
 
     with open(problem_json_path, "w", encoding="utf-8") as file:

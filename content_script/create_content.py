@@ -26,7 +26,7 @@ def create_variabilization(variabilization):
     return var_dict
 
 
-def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=True,verbosity=False,course_name="",sheet_name="",lesson_id=""):
+def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=True,verbosity=False,course_name="",sheet_name="",lesson_id="",figure_alts=None):
     if type(body) == float or type(body) == np.float64:
         body= ""
     for image in images:
@@ -55,11 +55,13 @@ def create_problem_json(name,title,body,oer,license,images=[],var_str='',latex=T
         "lessonId": lesson_id,
         "courseName": course_name
     }
+    if figure_alts:
+        problem_dict["figureAlts"] = figure_alts
     
     return json.dumps(problem_dict, indent=4)
 
 
-def create_hint(step, hint_id, title, body, oer, license, dependencies="", images=[], subhints=[], hint_dic={}, var_str='',latex=True,verbosity=False):
+def create_hint(step, hint_id, title, body, oer, license, dependencies="", images=[], subhints=[], hint_dic={}, var_str='',latex=True,verbosity=False,figure_alts=None):
     if type(body) == float or type(body) == np.float64:
         body = ""
     if type(title) == float or type(title) == np.float64:
@@ -94,6 +96,8 @@ def create_hint(step, hint_id, title, body, oer, license, dependencies="", image
         "oer": oer, 
         "license": license
     }
+    if figure_alts:
+        hint_dict["figureAlts"] = figure_alts
 
     if len(subhints) > 0:
         hint_dict.update({
@@ -121,7 +125,7 @@ def handle_answer_type(answer_type):
         raise Exception('Answer type not correct: ' + answer_type)
 
 
-def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers, oer, license, dependencies=0.0, images="", subhints=[], hint_dic={}, var_str="",latex=True,verbosity=False):
+def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers, oer, license, dependencies=0.0, images="", subhints=[], hint_dic={}, var_str="",latex=True,verbosity=False,figure_alts=None):
     if type(body) == float or type(body) == np.float64:
         body = ""
     if type(title) == float or type(title) == np.float64:
@@ -188,6 +192,8 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
         "oer": oer, 
         "license": license
     }
+    if figure_alts:
+        scaff_dict["figureAlts"] = figure_alts
 
     if type(mc_answers) is list:
         scaff_dict.update({
@@ -201,7 +207,7 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
     return scaff_dict, scaffold_id
 
 
-def create_step(name, title, body, answer, answer_type, number, choices="", image="", var_str="",latex=True, verbosity=False):
+def create_step(name, title, body, answer, answer_type, number, choices="", image="", var_str="",latex=True, verbosity=False, figure_alts=None):
     step_id = name + chr(ord('a')+number-1)
     if type(body) == float or type(body) == np.float64:
         body = ""
@@ -254,6 +260,9 @@ def create_step(name, title, body, answer, answer_type, number, choices="", imag
         "answerType": answer_type,
         "variabilization": variabilization
     }
+
+    if figure_alts:
+        step_dict["figureAlts"] = figure_alts
 
     if answer_latex:
         step_dict.update({
