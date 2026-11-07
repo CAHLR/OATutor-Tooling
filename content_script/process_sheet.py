@@ -326,7 +326,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
             error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
             error_df.at[0, 'Validator Check'] = str(e)
             if 'Lesson ID' in df.columns:
-                error_df.at[0, 'Lesson ID'] = df['Lesson ID'][0]
+                error_df.at[0, 'Lesson ID'] = df['Lesson ID'].iloc[0]
             try:
                 empty_col = pd.DataFrame(index=range(len(df)), columns=[''])
                 if "Validator Check" in df.columns:
@@ -387,7 +387,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     except KeyError:
         lesson_id = ""
     if type(lesson_id) is pd.Series:
-        lesson_id = lesson_id[0]
+        lesson_id = lesson_id.iloc[0]
     if not lesson_id or len(str(lesson_id)) <= 3:
         lesson_id = generate_id()  # DF sometimes infer float for this col
     debug_df.at[0, "Lesson ID"] = lesson_id
