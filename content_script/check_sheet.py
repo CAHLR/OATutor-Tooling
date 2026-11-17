@@ -7,7 +7,7 @@ pd.options.display.html.use_mathjax = False
 
 
 def check_sheet(spreadsheet_key, sheet_name, is_local):
-    scaff_dic = {"mc": "string", "numeric": "TextBox", "algebra": "TextBox", "string": "string", "sa": "sa"}
+    scaff_dic = {"mc": "string", "numeric": "TextBox", "algebra": "TextBox", "string": "string", "sa": "sa", "rounded": "TextBox"}
 
     if is_local == "online":
         scope = ['https://spreadsheets.google.com/feeds'] 
@@ -58,7 +58,7 @@ def check_sheet(spreadsheet_key, sheet_name, is_local):
             # file.write('\n')
             print(sheet_name, "kc")
             print(row)
-        if (row["Row Type"] == "scaffold" and row["answerType"] not in scaff_dic):
+        if (row["Row Type"] == "scaffold" and str(row["answerType"]).split(":")[0] not in scaff_dic):
             # file.write('\n' + str(sheet_name) + "answer Type\n")
             # file.write(str(row))
             # file.write('\n')
