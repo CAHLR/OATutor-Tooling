@@ -107,7 +107,26 @@ def create_hint(step, hint_id, title, body, oer, license, dependencies="", image
     return hint_dict, hint_id
 
 
-scaff_dic = {"mc": "string", "numeric": "TextBox", "algebra": "TextBox", "string": "string", "sa": "sa"}
+scaff_dic = {"mc": "string", "numeric": "TextBox", "algebra": "TextBox", "string": "string", "sa": "sa", "rounded": "TextBox"}
+
+
+def parse_answer_type(answer_type):
+    """Split a sheet answerType like "rounded:3" into ("rounded", 3).
+
+    Plain "rounded" gives ("rounded", None) so the platform's default precision applies.
+    Every other value, including a missing (NaN) cell, passes through unchanged.
+    """
+    if type(answer_type) != str:
+        return answer_type, None
+    name, has_colon, digits = answer_type.partition(":")
+    if name != "rounded":
+        return answer_type, None
+    if not has_colon:
+        return "rounded", None
+    digits = digits.strip()
+    if not digits.isdigit() or not 1 <= int(digits) <= 100:
+        raise Exception("Rounded precision must be a whole number from 1 to 100: " + answer_type)
+    return "rounded", int(digits)
 
 
 def handle_answer_type(answer_type):
@@ -119,6 +138,8 @@ def handle_answer_type(answer_type):
         return "arithmetic", "TextBox"
     elif answer_type == "sa":
         return "sa", "sa"
+    elif answer_type == "rounded":
+        return "rounded", "TextBox"
     elif type(answer_type) != str:
         raise Exception("Answer type is missing")
     else:
@@ -126,6 +147,7 @@ def handle_answer_type(answer_type):
 
 
 def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers, oer, license, dependencies=0.0, images="", subhints=[], hint_dic={}, var_str="",latex=True,verbosity=False,figure_alts=None):
+    answer_type, precision = parse_answer_type(answer_type)
     if type(body) == float or type(body) == np.float64:
         body = ""
     if type(title) == float or type(title) == np.float64:
@@ -163,7 +185,7 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
         raise Exception("Scaffold mc question contains no options")
     
     answer_type, problem_type = handle_answer_type(answer_type)
-    if answer_type == "arithmetic":
+    if answer_type == "arithmetic" or answer_type == "rounded":
         if "," in answer and not "/mat" in answer:
             raise Exception("Scaffold arithmetic answer contains comma")
         answer = preprocess_text_to_latex(answer, render_latex=latex, verbosity=verbosity)[0]
@@ -194,6 +216,8 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
     }
     if figure_alts:
         scaff_dict["figureAlts"] = figure_alts
+    if precision is not None:
+        scaff_dict["precision"] = precision
 
     if type(mc_answers) is list:
         scaff_dict.update({
@@ -208,6 +232,7 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
 
 
 def create_step(name, title, body, answer, answer_type, number, choices="", image="", var_str="",latex=True, verbosity=False, figure_alts=None):
+    answer_type, precision = parse_answer_type(answer_type)
     step_id = name + chr(ord('a')+number-1)
     if type(body) == float or type(body) == np.float64:
         body = ""
@@ -246,7 +271,7 @@ def create_step(name, title, body, answer, answer_type, number, choices="", imag
         answer = preprocess_text_to_latex(answer, True, True, render_latex=latex, verbosity=verbosity)[0]
     
     answer_type, problem_type = handle_answer_type(answer_type)
-    if answer_type == "arithmetic":
+    if answer_type == "arithmetic" or answer_type == "rounded":
         if "," in new_answer:
             raise Exception("Step arithmetic answer contains comma")
         answer = new_answer
@@ -263,6 +288,8 @@ def create_step(name, title, body, answer, answer_type, number, choices="", imag
 
     if figure_alts:
         step_dict["figureAlts"] = figure_alts
+    if precision is not None:
+        step_dict["precision"] = precision
 
     if answer_latex:
         step_dict.update({
