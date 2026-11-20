@@ -39,6 +39,10 @@ try:
 except:
     URL_SPREADSHEET_KEY = ""
 
+# A single Content QA entrance for reviewers.  Per-problem Debug Link values
+# remain below; this link opens the directory introduced at #/debug.
+CONTENT_STAGING_DEBUG_DIRECTORY_URL = "https://cahlr.github.io/OATutor-Content-Staging/#/debug"
+
 def get_sheet_with_retries(book, sheet_name, retries=5, delay=5):
     attempt = 0
     while attempt < retries:
@@ -377,7 +381,10 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     pacific_tz = pytz.timezone('America/Los_Angeles')
     error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
 
-    debug_df = pd.DataFrame(index=range(len(df)), columns=['Debug Link', 'Problem ID', 'Lesson ID', 'Image Checksum'])
+    debug_df = pd.DataFrame(
+        index=range(len(df)),
+        columns=['Debug Directory', 'Debug Link', 'Problem ID', 'Lesson ID', 'Image Checksum']
+    )
     debug_platform_template = "https://cahlr.github.io/OATutor-Content-Staging/#/debug/{}"
 
     print("[{}] Start validating".format(sheet_name))
@@ -390,6 +397,9 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         lesson_id = lesson_id.iloc[0]
     if not lesson_id or len(str(lesson_id)) <= 3:
         lesson_id = generate_id()  # DF sometimes infer float for this col
+    # Keep one discoverable link at the top of every content worksheet.  It
+    # complements the existing per-problem links rather than replacing them.
+    debug_df.at[0, "Debug Directory"] = CONTENT_STAGING_DEBUG_DIRECTORY_URL
     debug_df.at[0, "Lesson ID"] = lesson_id
 
     questions = [x for _, x in df.groupby(df['Problem Name'])]
