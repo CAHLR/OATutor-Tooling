@@ -41,3 +41,7 @@ oatutor-firebase-adminsdk.json
 Data Analytics/data
 
 .OpenStax Validator
+
+# alt text scripts: credentials and generated drafts
+scripts/credentials/
+scripts/data/
