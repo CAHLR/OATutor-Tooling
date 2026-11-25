@@ -125,6 +125,52 @@ def handle_answer_type(answer_type):
         raise Exception('Answer type not correct: ' + answer_type)
 
 
+def create_multi_answer(answer, latex=True, verbosity=False):
+    """Parse a multi-answer step stored as JSON in the existing Answer cell."""
+    try:
+        config = json.loads(answer)
+    except (TypeError, ValueError) as error:
+        raise ValueError("Multi-answer Answer must be valid JSON") from error
+
+    if not isinstance(config, dict) or config.get("layout") not in ("combined", "sideBySide"):
+        raise ValueError("Multi-answer layout must be combined or sideBySide")
+    layout = config["layout"]
+    raw_parts = config.get("parts")
+    if not isinstance(raw_parts, list) or len(raw_parts) < 2:
+        raise ValueError("Multi-answer requires at least two parts")
+    if layout == "combined" and len(raw_parts) != 2:
+        raise ValueError("Combined layout requires exactly two parts")
+
+    parts = []
+    for index, raw in enumerate(raw_parts):
+        if not isinstance(raw, dict) or not isinstance(raw.get("label"), str) or not raw["label"].strip():
+            raise ValueError("Multi-answer part {} needs a label".format(index + 1))
+        if raw.get("answerType") not in ("numeric", "algebra", "algebraic", "string", "unit"):
+            raise ValueError("Multi-answer part {} has an unsupported answerType".format(index + 1))
+        answers = raw.get("answers", raw.get("answer"))
+        answers = answers if isinstance(answers, list) else [answers]
+        if not answers or any(value is None or not str(value).strip() for value in answers):
+            raise ValueError("Multi-answer part {} needs an answer".format(index + 1))
+        answer_type = raw["answerType"]
+        if answer_type != "unit":
+            answer_type, _ = handle_answer_type(answer_type)
+        formatted = [preprocess_text_to_latex(str(value), render_latex=latex,
+                     verbosity=verbosity)[0] if answer_type == "arithmetic" else str(value)
+                     for value in answers]
+        part = {"label": raw["label"].strip(), "answerType": answer_type,
+                "answers": formatted}
+        if "precision" in raw:
+            raise ValueError("Multi-answer precision is not supported by the arithmetic checker")
+        parts.append(part)
+
+    if layout == "combined" and (
+            raw_parts[0]["answerType"] != "numeric" or
+            raw_parts[1]["answerType"] not in ("unit", "string")):
+        raise ValueError("Combined layout requires a numeric part followed by a unit or string part")
+
+    return {"layout": layout, "parts": parts}
+
+
 def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers, oer, license, dependencies=0.0, images="", subhints=[], hint_dic={}, var_str="",latex=True,verbosity=False,figure_alts=None):
     if type(body) == float or type(body) == np.float64:
         body = ""
@@ -218,6 +264,24 @@ def create_step(name, title, body, answer, answer_type, number, choices="", imag
     body, body_latex = preprocess_text_to_latex(body, render_latex=latex, verbosity=verbosity)
 
     variabilization = create_variabilization(var_str)
+
+    if answer_type == "multi":
+        multi_answer = create_multi_answer(answer, latex=latex, verbosity=verbosity)
+        for img in image:
+            body += "##" + img + "## "
+        step_dict = {
+            "id": step_id,
+            "stepAnswer": [" ".join(part["answers"][0] for part in multi_answer["parts"])],
+            "problemType": "MultiAnswer",
+            "stepTitle": title,
+            "stepBody": body,
+            "answerType": "multi",
+            "multiAnswer": multi_answer,
+            "variabilization": variabilization,
+        }
+        if figure_alts:
+            step_dict["figureAlts"] = figure_alts
+        return json.dumps(step_dict, indent=4)
 
     # getting rid of timestamp format for fractions
     try:

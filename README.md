@@ -51,6 +51,14 @@ Answer: The answer for the step/scaffold. Leave this field blank for hints and p
 
 answerType: The answer types are "mc", "string", and "algebra". "mc" denotes multiple choice and if a step/scaffold/hint is "mc", then the "mcChoices" field must be filled in. "string" means that the answer the student provides must exactly match the answer that the content creator inputs in the "Answer" field, and is generally used for questions with text answers. "algebra" means that the answer can contain some type of math notation and the OpenITS system will check that the answer that the student provided is mathematically equivalent to the answer provided by the content creator. 
 
+For a step with multiple parts, set `answerType` to `multi` and put JSON in its existing `Answer` cell. `layout` is `combined` for one value-and-unit field or `sideBySide` for two or more fields with one Submit button. Each part needs a label, its own answer type (`numeric`, `algebra`, `string`, or `unit`), and an answer. `unit` matches without regard to case and does not convert units. `answers` can list accepted alternatives. Mastery uses one result for the step: all parts must be correct.
+
+```json
+{"layout":"combined","parts":[{"label":"Value","answerType":"numeric","answer":"12"},{"label":"Unit","answerType":"unit","answers":["cm","centimeters"]}]}
+```
+
+The combined layout accepts a numeric value followed by a unit string. For other combinations, use `sideBySide` with the same `parts` structure. For example, Disc6 Part E can pair its algebra answer `10000` with the string answer `make_array()`.
+
 HintID: The id of the hint/scaffold. Leave this field blank if the row is a problem or a step. These are generally denoted "h1", "h2", etc. for the number of hint they are for the step. Every hint/scaffold in a step must have a unique hint ID, but hint IDs don't have to be unique across steps and problems. 
 
 Dependency: This field enables the OATutor to open hints only after certain other hints have already been opened or scaffolds have been correctly answered. The dependency field can also include multiple other hints, and is comma-delimited. An example could be "h1,h2,h3" if the content creator wants students to only access this hint after finishing "h1", "h2", and "h3".
